@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Bulk DNS Request</h2>
+<form method="post">
+    <label for="bulk_data">Bulk Data (JSON format):</label>
+    <textarea id="bulk_data" name="bulk_data" rows="10" cols="50">
+{
+    "records": [
+        {
+            "dns_type": "internal",
+            "action": "creation",
+            "dns_name": "example.com",
+            "target_value": "192.168.1.1"
+        },
+        {
+            "dns_type": "external",
+            "action": "deletion",
+            "dns_name": "example.org",
+            "target_value": "192.168.1.2"
+        }
+    ]
+}
+    </textarea>
+    <br>
+    <button type="submit">Validate</button>
+</form>
+{% endblock %}

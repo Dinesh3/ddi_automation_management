@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Bulk DNS Validation</h2>
+<form method="post">
+    <label for="dns_names">Enter DNS Names (one per line):</label>
+    <textarea id="dns_names" name="dns_names" rows="10" cols="50"></textarea>
+    <br>
+    <button type="submit">Check</button>
+</form>
+
+{% if results %}
+    <h3>Validation Results</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>DNS Name</th>
+                <th>Target Value</th>
+                <th>CNAME</th>
+                <th>FQDN</th>
+                <th>Zone Name</th>
+                <th>SOA Record</th>
+                <th>NS Record</th>
+                <th>PTR Record</th>
+                <th>Reverse Lookup</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for result in results %}
+                <tr>
+                    <td>{{ result.dns_name }}</td>
+                    <td>{{ result.target_value | join(', ') }}</td>
+                    <td>{{ result.cname }}</td>
+                    <td>{{ result.fqdn }}</td>
+                    <td>{{ result.zone_name }}</td>
+                    <td>{{ result.soa_record }}</td>
+                    <td>{{ result.ns_records | join(', ') }}</td>
+                    <td>{{ result.ptr_records | join(', ') }}</td>
+                    <td>{{ result.reverse_lookup }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+{% endblock %}

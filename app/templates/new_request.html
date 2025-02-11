@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>New DNS Request</h2>
+<form method="post" class="form-section">
+    <div class="form-group">
+        <label for="dns_type">DNS Type:</label>
+        <select id="dns_type" name="dns_type" class="form-control">
+            <option value="internal">Internal</option>
+            <option value="external">External</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="action">Action:</label>
+        <select id="action" name="action" class="form-control">
+            <option value="creation">Creation</option>
+            <option value="deletion">Deletion</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="dns_name">DNS Name:</label>
+        <input type="text" id="dns_name" name="dns_name" class="form-control" required oninput="handleDnsNameExist()">
+        <span id="dns_status" class="form-text"></span>
+    </div>
+    <div class="form-group">
+        <label for="target_value">Target Value:</label>
+        <input type="text" id="target_value" name="target_value" class="form-control" required>
+    </div>
+    <!-- <button type="submit" name="validate" class="btn btn-secondary">Validate</button> -->
+    <button type="submit" name="submit" class="btn btn-primary">Submit</button>
+</form>
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <ul class="flashes">
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endwith %}
+{% endblock %}
+
+<style>
+    .form-section {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        background-color: #f9f9f9;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    .form-text {
+        display: block;
+        margin-top: 5px;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .flashes {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    .flashes li {
+        margin-bottom: 10px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #e9ecef;
+    }
+</style>
+
+<script>
+    function debounce(func, timeout = 1000) {
+        let timer;
+        return (...args) => {
+            clearTimeout(timer);
+            timer = setTimeout(() => { func.apply(this, args); }, timeout);
+        };
+    }
+
+    function checkDNSName() {
+        const dnsName = document.getElementById('dns_name').value;
+        const dnsStatus = document.getElementById('dns_status');
+
+        if (dnsName) {
+            fetch('/check_dns', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `dns_name=${dnsName}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.exists) {
+                    dnsStatus.textContent = 'DNS record already exists.';
+                    dnsStatus.style.color = 'red';
+                } else {
+                    dnsStatus.textContent = 'DNS record does not exist.';
+                    dnsStatus.style.color = 'green';
+                }
+            });
+        } else {
+            dnsStatus.textContent = '';
+        }
+    }
+
+    const handleDnsNameExist = debounce(() => checkDNSName());
+</script>
